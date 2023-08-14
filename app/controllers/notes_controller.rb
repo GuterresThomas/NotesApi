@@ -1,48 +1,42 @@
 class NotesController < ApplicationController
     def index   
-        notes = Note.all
-        render json: notes
+      notes = Note.all
+      render json: notes
     end
-
+  
     def show
-        @note = Note.find(params[:id])
-        render json: notes
+      @note = Note.find(params[:id])
+      render json: @note
     end    
-    def def create
-        @note = Note.new(note_params)
-        if @note.save
-          flash[:success] = "Note successfully created"
-          render json: notes
-        else
-          flash[:error] = "Something went wrong"
-          render 'new'
-        end
+  
+    def create
+      @note = Note.new(note_params)
+      if @note.save
+        render json: @note, status: :created
+      else
+        render json: { error: "Something went wrong" }, status: :unprocessable_entity
+      end
     end
-
+  
     def update
-        @note = Note.find(params[:id])
-        if @note.update_attributes(params[:note])
-          flash[:success] = "Note was successfully updated"
-          render json: notes
-        else
-          flash[:error] = "Something went wrong"
-          render 'edit'
-        end
+      @note = Note.find(params[:id])
+      if @note.update(note_params)
+        render json: @note
+      else
+        render json: { error: "Something went wrong" }, status: :unprocessable_entity
+      end
     end
-
+  
     def destroy
-        @note = Note.find(params[:id])
-        if @note.destroy
-            flash[:success] = 'Note was successfully deleted.'
-              render json: notes
-        else
-            flash[:error] = 'Something went wrong'
-              render json: notes
-        end
+      @note = Note.find(params[:id])
+      @note.destroy
+      head :no_content
     end
-
-    
-    
-    
-    
+  
+    private
+  
+    def note_params
+      params.require(:note).permit(:title, :body)
+    end
 end
+  
